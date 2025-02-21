@@ -1,0 +1,28 @@
+app/
+  layout.tsx
+  page.tsx
+  about/
+    page.tsx
+  blog/
+    layout.tsx
+    page.tsx
+    [slug]/
+      page.tsx
+  products/
+    layout.tsx
+    page.tsx
+    [category]/
+      page.tsx
+      [item]/
+        page.tsx
+
+
+This structure would create the following routes:
+
+- `/`
+- `/about`
+- `/blog`
+- `/blog/[slug]`
+- `/products`
+- `/products/[category]`
+- `/products/[category]/[item]`
