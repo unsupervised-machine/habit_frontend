@@ -19,7 +19,7 @@ interface Task {
   id: number
   title: string
   checked: boolean
-  isOnTrack: boolean
+  streak: number
   subtasks: Subtask[]
 }
 
@@ -133,7 +133,7 @@ export default function TaskList({ initialTasks }: TaskListProps) {
 
   const getTaskColor = (task: Task) => {
     if (task.checked) return 'bg-[var(--custom-color-2)]' // High priority
-    if (task.isOnTrack === false) return 'bg-[var(--custom-color)]' // Explicit check
+    if (task.streak < 0) return 'bg-[var(--custom-color)]' // Explicit check
     return 'bg-background' // Default
   }
 
