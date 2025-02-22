@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { ChevronRight, ChevronDown, Plus, Flame } from "lucide-react"
+import { ChevronRight, ChevronDown, Plus, Flame, Snowflake} from "lucide-react"
 import { toast, Toaster } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -137,25 +137,36 @@ export default function TaskList({ initialTasks }: TaskListProps) {
     return 'bg-background' // Default
   }
 
-const renderStreak = (streak: number) => {
-  return (
-    <TooltipProvider>
-      <Tooltip>
-        <TooltipTrigger>
-          <div className="flex items-center space-x-1">
-            {[...Array(Math.min(streak, 5))].map((_, index) => (
-              <Flame key={index} className="w-4 h-4 text-red-500" />
-            ))}
-            {streak > 5 && <span className="text-sm font-bold">+{streak - 5}</span>}
-          </div>
-        </TooltipTrigger>
-        <TooltipContent>
-          <p>Streak: {streak} {streak === 1 ? 'day' : 'days'}</p>
-        </TooltipContent>
-      </Tooltip>
-    </TooltipProvider>
-  )
-}
+  const renderStreak = (streak: number) => {
+    const absStreak = Math.abs(streak)
+    const Icon = streak >= 0 ? Flame : Snowflake
+    const color = streak >= 0 ? 'text-red-500' : 'text-blue-500'
+    const label = streak >= 0 ? 'day streak' : 'days missed'
+
+    return (
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger>
+            <div className="flex items-center space-x-1">
+              {[...Array(Math.min(absStreak, 5))].map((_, index) => (
+                <Icon key={index} className={color} strokeWidth={2} width={20} height={20} fill="currentColor"/>
+              ))}
+              {absStreak > 5 && (
+                <span className={`text-sm font-bold ${color}`}>
+                  {streak >= 0 ? '+' : '-'}{absStreak - 5}
+                </span>
+              )}
+            </div>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>
+              {absStreak} {absStreak === 1 ? label : label}
+            </p>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
+    )
+  }
 
   return (
     <div className="space-y-4">
@@ -194,20 +205,23 @@ const renderStreak = (streak: number) => {
                 />
                 <label
                   htmlFor={`task-${task.id}`}
-                  className={`text-lg font-semibold ${task.checked ? "line-through text-muted-foreground" : ""}`}
+                  className={`text-lg font-semibold ${
+                    task.checked ? 'line-through text-muted-foreground' : ''
+                  }`}
                 >
                   {task.title}
                 </label>
+                {renderStreak(task.streak)}
               </div>
               <div className="flex items-center space-x-2">
                 <Dialog>
                   <DialogTrigger asChild>
                     <Button variant="outline" size="sm" onClick={() => setActiveTaskId(task.id)}>
-                      <Plus className="h-4 w-4" />
+                      <Plus className="h-4 w-4"/>
                     </Button>
                   </DialogTrigger>
                   <DialogContent>
-                    <DialogHeader>
+                  <DialogHeader>
                       <DialogTitle>Add New Subtask</DialogTitle>
                     </DialogHeader>
                     <div className="flex items-center space-x-2">

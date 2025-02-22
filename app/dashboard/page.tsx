@@ -6,7 +6,7 @@ const tasks = [
     title: "Project A",
     checked: false,
     isOnTrack: true,
-    streak: 5,
+    streak: 15,
     subtasks: [
       { id: 11, title: "Design mockups", checked: false },
       { id: 12, title: "Implement frontend", checked: false },
