@@ -28,6 +28,7 @@ interface TaskListProps {
 
 export default function TaskList({ initialTasks }: TaskListProps) {
   const [tasks, setTasks] = useState<Task[]>(initialTasks)
+  console.log("Received initialTasks:", initialTasks);
   const [expandedTasks, setExpandedTasks] = useState<number[]>(initialTasks.map(task => task.id))
   const [newTaskTitle, setNewTaskTitle] = useState("")
   const [newSubtaskTitle, setNewSubtaskTitle] = useState("")
@@ -129,6 +130,14 @@ export default function TaskList({ initialTasks }: TaskListProps) {
     }
   }
 
+  const getTaskColor = (task: Task) => {
+  console.log(`Task: ${task.title}`, { checked: task.checked, isOnTrack: task.isOnTrack });
+
+  if (task.checked) return 'bg-[var(--chart-2)]' // High priority
+  if (task.isOnTrack === false) return 'bg-[var(--chart-3)]' // Explicit check
+  return 'bg-background' // Default
+}
+
   return (
     <div className="space-y-4">
       <Toaster />
@@ -155,7 +164,8 @@ export default function TaskList({ initialTasks }: TaskListProps) {
 
       <ul className="space-y-4">
         {tasks.map((task) => (
-          <li key={task.id} className="border rounded-lg p-4">
+          // <li key={task.id} className="border rounded-lg p-4">
+          <li key={task.id} className={`border rounded-lg p-4 transition-colors ${getTaskColor(task)}`}>
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2">
                 <Checkbox
