@@ -1,12 +1,13 @@
 "use client"
 
 import { useState } from "react"
-import { ChevronRight, ChevronDown, Plus } from "lucide-react"
+import { ChevronRight, ChevronDown, Plus, Flame } from "lucide-react"
 import { toast, Toaster } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Input } from "@/components/ui/input"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 
 interface Subtask {
   id: number
@@ -131,11 +132,29 @@ export default function TaskList({ initialTasks }: TaskListProps) {
   }
 
   const getTaskColor = (task: Task) => {
-  console.log(`Task: ${task.title}`, { checked: task.checked, isOnTrack: task.isOnTrack });
+    if (task.checked) return 'bg-[var(--custom-color-2)]' // High priority
+    if (task.isOnTrack === false) return 'bg-[var(--custom-color)]' // Explicit check
+    return 'bg-background' // Default
+  }
 
-  if (task.checked) return 'bg-[var(--chart-2)]' // High priority
-  if (task.isOnTrack === false) return 'bg-[var(--chart-3)]' // Explicit check
-  return 'bg-background' // Default
+const renderStreak = (streak: number) => {
+  return (
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger>
+          <div className="flex items-center space-x-1">
+            {[...Array(Math.min(streak, 5))].map((_, index) => (
+              <Flame key={index} className="w-4 h-4 text-red-500" />
+            ))}
+            {streak > 5 && <span className="text-sm font-bold">+{streak - 5}</span>}
+          </div>
+        </TooltipTrigger>
+        <TooltipContent>
+          <p>Streak: {streak} {streak === 1 ? 'day' : 'days'}</p>
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
+  )
 }
 
   return (
