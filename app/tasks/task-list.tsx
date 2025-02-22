@@ -18,6 +18,7 @@ interface Task {
   id: number
   title: string
   checked: boolean
+  isOnTrack: boolean
   subtasks: Subtask[]
 }
 
