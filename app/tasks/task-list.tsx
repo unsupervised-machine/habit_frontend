@@ -168,6 +168,8 @@ export default function TaskList({ initialTasks }: TaskListProps) {
     )
   }
 
+  // TODO allow making habits inactive, allow reordering habits, allow deleting habits
+
   return (
     <div className="space-y-4">
       <Toaster />
