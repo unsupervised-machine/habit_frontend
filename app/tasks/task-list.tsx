@@ -132,8 +132,8 @@ export default function TaskList({ initialTasks }: TaskListProps) {
   }
 
   const getTaskColor = (task: Task) => {
-    if (task.checked) return 'bg-[var(--custom-color-2)]' // High priority
-    if (task.streak < 0) return 'bg-[var(--custom-color)]' // Explicit check
+    if (task.checked) return 'bg-[var(--custom-color-task-success)]'
+    if (task.streak < 0) return 'bg-[var(--custom-color-task-fail)]'
     return 'bg-background' // Default
   }
 
@@ -206,7 +206,7 @@ export default function TaskList({ initialTasks }: TaskListProps) {
                 <label
                   htmlFor={`task-${task.id}`}
                   className={`text-lg font-semibold ${
-                    task.checked ? 'line-through text-muted-foreground' : ''
+                    task.checked ? 'line-through text-black' : ''
                   }`}
                 >
                   {task.title}
@@ -254,7 +254,7 @@ export default function TaskList({ initialTasks }: TaskListProps) {
                     />
                     <label
                       htmlFor={`subtask-${subtask.id}`}
-                      className={subtask.checked ? "line-through text-muted-foreground" : ""}
+                      className={subtask.checked ? "line-through text-black" : ""}
                     >
                       {subtask.title}
                     </label>

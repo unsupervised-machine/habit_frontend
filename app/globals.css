@@ -43,8 +43,8 @@
   --sidebar-accent-foreground: oklch(0.21 0.006 285.885);
   --sidebar-border: oklch(0.92 0.004 286.32);
   --sidebar-ring: oklch(0.871 0.006 286.286);
-  --custom-color: rgba(156, 163, 175);
-  --custom-color-2: rgba(134, 239, 172);
+  --custom-color-task-success: hsl(142, 71%, 45%);
+  --custom-color-task-fail: hsl(0, 91%, 71%);
 
 }
 
