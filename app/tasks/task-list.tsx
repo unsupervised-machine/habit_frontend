@@ -94,18 +94,21 @@ export function TaskList() {
                   >
                     <div className="flex items-center space-x-3">
                       <motion.div
-                        className="w-5 h-5 flex-shrink-0 relative"
-                        animate={updatingTaskId === task.id ? { rotate: 360 } : { rotate: 0 }}
+                        className="w-5 h-5 flex-shrink-0 border-2 border-gray-600 rounded-full flex items-center justify-center"
+                        animate={updatingTaskId === task.id ? {rotate: 360} : {rotate: 0}}
                         transition={
                           updatingTaskId === task.id
-                            ? { duration: 1, repeat: Number.POSITIVE_INFINITY, ease: "linear" }
-                            : { duration: 0 }
+                            ? {duration: 1, repeat: Number.POSITIVE_INFINITY, ease: "linear"}
+                            : {duration: 0}
                         }
                       >
-                        <div className="w-full h-full bg-gray-600 rounded-full"></div>
+                        {task.completed && (
+                          <div className="w-2.5 h-2.5 bg-gray-600 rounded-full"></div>
+                        )}
                       </motion.div>
                       <div className="flex-grow flex items-center justify-between overflow-hidden">
-                        <span className="text-sm truncate text-gray-400 group-hover:text-white transition-colors duration-300 ease-in-out">
+                        <span
+                          className="text-sm truncate text-gray-400 group-hover:text-white transition-colors duration-300 ease-in-out">
                           {task.title}
                         </span>
                       </div>
