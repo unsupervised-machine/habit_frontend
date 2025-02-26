@@ -1,4 +1,4 @@
-import TaskList from "../tasks/task-list"
+import {TaskList} from "../tasks/task-list"
 
 const tasks = [
   {

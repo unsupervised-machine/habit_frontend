@@ -1,273 +1,123 @@
 "use client"
 
-import { useState } from "react"
-import { ChevronRight, ChevronDown, Plus, Flame, Snowflake} from "lucide-react"
-import { toast, Toaster } from "sonner"
-import { Button } from "@/components/ui/button"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Input } from "@/components/ui/input"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { useState, useEffect } from "react"
+import { ExternalLink } from "lucide-react"
+import { motion, AnimatePresence } from "framer-motion"
+import { DemoModeToggle } from "@/components/demo-mode-toggle"
+import { type Task, demoTasks } from "@/constants/demoTasks"
 
-interface Subtask {
-  id: number
-  title: string
-  checked: boolean
-}
-
-interface Task {
-  id: number
-  title: string
-  checked: boolean
-  streak: number
-  subtasks: Subtask[]
-}
-
-interface TaskListProps {
-  initialTasks: Task[]
-}
-
-export default function TaskList({ initialTasks }: TaskListProps) {
-  const [tasks, setTasks] = useState<Task[]>(initialTasks)
-  console.log("Received initialTasks:", initialTasks);
-  const [expandedTasks, setExpandedTasks] = useState<number[]>(initialTasks.map(task => task.id))
-  const [newTaskTitle, setNewTaskTitle] = useState("")
-  const [newSubtaskTitle, setNewSubtaskTitle] = useState("")
-  const [activeTaskId, setActiveTaskId] = useState<number | null>(null)
-
-  const toggleTask = (taskId: number) => {
-    setExpandedTasks((prev) => (prev.includes(taskId) ? prev.filter((id) => id !== taskId) : [...prev, taskId]))
-  }
-
-  const handleTaskCheck = (taskId: number) => {
-    setTasks((prevTasks) =>
-      prevTasks.map((task) =>
-        task.id === taskId
-          ? {
-              ...task,
-              checked: !task.checked,
-              subtasks: task.subtasks.map((subtask) => ({
-                ...subtask,
-                checked: !task.checked,
-              })),
-            }
-          : task,
-      ),
-    )
-  }
-
-  const handleSubtaskCheck = (taskId: number, subtaskId: number) => {
-    setTasks((prevTasks) =>
-      prevTasks.map((task) =>
-        task.id === taskId
-          ? {
-              ...task,
-              subtasks: task.subtasks.map((subtask) =>
-                subtask.id === subtaskId ? { ...subtask, checked: !subtask.checked } : subtask
-              ),
-              // Recalculate checked status based on the updated subtasks
-              checked: task.subtasks.every((subtask) =>
-                subtask.id === subtaskId ? !subtask.checked : subtask.checked
-              ),
-            }
-          : task
-      )
-    );
-  };
-
-  const addNewTask = async () => {
-    if (!newTaskTitle.trim()) return
-
-    try {
-      const response = await fetch("/api/tasks", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ title: newTaskTitle }),
-      })
-
-      if (!response.ok) {
-        throw new Error("Failed to add task")
-      }
-
-      const newTask: Task = await response.json()
-      setTasks((prevTasks) => [...prevTasks, newTask])
-      setExpandedTasks((prevExpanded) => [...prevExpanded, newTask.id]); // Expand the new task
-      setNewTaskTitle("")
-      toast.success(`New task "${newTask.title}" has been added.`)
-    } catch (error) {
-      console.error("Error adding task:", error)
-      toast.error("Failed to add task. Please try again.")
-    }
-  }
-
-  const addNewSubtask = async (taskId: number) => {
-    if (!newSubtaskTitle.trim()) return
-
-    try {
-      const response = await fetch(`/api/tasks/${taskId}/subtasks`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ title: newSubtaskTitle }),
-      })
-
-      if (!response.ok) {
-        throw new Error("Failed to add subtask")
-      }
-
-      const newSubtask: Subtask = await response.json()
-      setTasks((prevTasks) =>
-        prevTasks.map((task) => (task.id === taskId ? { ...task, subtasks: [...task.subtasks, newSubtask] } : task)),
-      )
-      setNewSubtaskTitle("")
-      setActiveTaskId(null)
-      toast.success(`New subtask "${newSubtask.title}" has been added.`)
-    } catch (error) {
-      console.error("Error adding subtask:", error)
-      toast.error("Failed to add subtask. Please try again.")
-    }
-  }
-
-  const getTaskColor = (task: Task) => {
-    if (task.checked) return 'bg-[var(--custom-color-task-success)]'
-    if (task.streak < 0) return 'bg-[var(--custom-color-task-fail)]'
-    return 'bg-background' // Default
-  }
-
-  const renderStreak = (streak: number) => {
-    const absStreak = Math.abs(streak)
-    const Icon = streak >= 0 ? Flame : Snowflake
-    const color = streak >= 0 ? 'text-red-500' : 'text-blue-500'
-    const label = streak >= 0 ? 'day streak' : 'days missed'
-
-    return (
-      <TooltipProvider>
-        <Tooltip>
-          <TooltipTrigger>
-            <div className="flex items-center space-x-1">
-              {[...Array(Math.min(absStreak, 5))].map((_, index) => (
-                <Icon key={index} className={color} strokeWidth={2} width={20} height={20} fill="currentColor"/>
-              ))}
-              {absStreak > 5 && (
-                <span className={`text-sm font-bold ${color}`}>
-                  {streak >= 0 ? '+' : '-'}{absStreak - 5}
-                </span>
-              )}
-            </div>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p>
-              {absStreak} {absStreak === 1 ? label : label}
-            </p>
-          </TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
-    )
-  }
-
-  // TODO allow making habits inactive, allow reordering habits, allow deleting habits
-
+function SkeletonLoader() {
   return (
-    <div className="space-y-4">
-      <Toaster />
-      <Dialog>
-        <DialogTrigger asChild>
-          <Button variant="ghost">
-            <Plus className="mr-2 h-4 w-4" /> Add New Task
-          </Button>
-        </DialogTrigger>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Add New Task</DialogTitle>
-          </DialogHeader>
-          <div className="flex items-center space-x-2">
-            <Input
-              value={newTaskTitle}
-              onChange={(e) => setNewTaskTitle(e.target.value)}
-              placeholder="Enter task title"
-            />
-            <Button variant="ghost" onClick={addNewTask}>Add Task</Button>
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      <ul className="space-y-4">
-        {tasks.map((task) => (
-          // <li key={task.id} className="border rounded-lg p-4">
-          <li key={task.id} className={`border rounded-lg p-4 transition-colors ${getTaskColor(task)}`}>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  id={`task-${task.id}`}
-                  checked={task.checked}
-                  onCheckedChange={() => handleTaskCheck(task.id)}
-                />
-                <label
-                  htmlFor={`task-${task.id}`}
-                  className={`text-lg font-semibold ${
-                    task.checked ? 'line-through text-black' : ''
-                  }`}
-                >
-                  {task.title}
-                </label>
-                {renderStreak(task.streak)}
-              </div>
-              <div className="flex items-center space-x-2">
-                <Dialog>
-                  <DialogTrigger asChild>
-                    <Button variant="outline" size="sm" onClick={() => setActiveTaskId(task.id)}>
-                      <Plus className="h-4 w-4"/>
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent>
-                  <DialogHeader>
-                      <DialogTitle>Add New Subtask</DialogTitle>
-                    </DialogHeader>
-                    <div className="flex items-center space-x-2">
-                      <Input
-                        value={newSubtaskTitle}
-                        onChange={(e) => setNewSubtaskTitle(e.target.value)}
-                        placeholder="Enter subtask title"
-                      />
-                      <Button variant="ghost" onClick={() => addNewSubtask(task.id)}>Add Subtask</Button>
-                    </div>
-                  </DialogContent>
-                </Dialog>
-                <Button variant="ghost" size="sm" onClick={() => toggleTask(task.id)}>
-                  {expandedTasks.includes(task.id) ? (
-                    <ChevronDown className="h-4 w-4" />
-                  ) : (
-                    <ChevronRight className="h-4 w-4" />
-                  )}
-                </Button>
-              </div>
+    <ul className="space-y-4 mb-8 w-full">
+      {[...Array(5)].map((_, index) => (
+        <li key={index} className="py-3">
+          <div className="flex items-center space-x-3">
+            <div className="w-5 h-5 bg-gray-600 rounded-full flex-shrink-0 animate-pulse"></div>
+            <div className="flex-grow flex items-center justify-between">
+              <div
+                className={`h-4 bg-gray-600 rounded-md animate-pulse w-${["3/4", "2/3", "5/6", "1/2", "4/5"][index]}`}
+              ></div>
             </div>
-            {expandedTasks.includes(task.id) && (
-              <ul className="mt-2 ml-8 space-y-2">
-                {task.subtasks.map((subtask) => (
-                  <li key={subtask.id} className="flex items-center space-x-2">
-                    <Checkbox
-                      id={`subtask-${subtask.id}`}
-                      checked={subtask.checked}
-                      onCheckedChange={() => handleSubtaskCheck(task.id, subtask.id)}
-                    />
-                    <label
-                      htmlFor={`subtask-${subtask.id}`}
-                      className={subtask.checked ? "line-through text-black" : ""}
-                    >
-                      {subtask.title}
-                    </label>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </li>
-        ))}
-      </ul>
-    </div>
+          </div>
+        </li>
+      ))}
+    </ul>
   )
 }
 
+export function TaskList() {
+  const [tasks, setTasks] = useState<Task[]>([])
+  const [isDemoMode, setIsDemoMode] = useState(true)
+  const [isLoading, setIsLoading] = useState(true)
+  const [updatingTaskId, setUpdatingTaskId] = useState<string | null>(null)
+
+  useEffect(() => {
+    fetchTasks()
+  }, [])
+
+  const fetchTasks = async () => {
+    setIsLoading(true)
+    await new Promise((resolve) => setTimeout(resolve, 1000))
+    setTasks(demoTasks)
+    setIsLoading(false)
+  }
+
+  const toggleDemoMode = () => {
+    setIsDemoMode(!isDemoMode)
+  }
+
+  const toggleTaskCompletion = (taskId: string) => {
+    setUpdatingTaskId(taskId)
+    setTasks((prevTasks) =>
+      prevTasks
+        .map((task) => (task.id === taskId ? { ...task, completed: !task.completed } : task))
+        .sort((a, b) => (a.completed === b.completed ? 0 : a.completed ? 1 : -1)),
+    )
+    setTimeout(() => setUpdatingTaskId(null), 500)
+  }
+
+  const openTaskInNewWindow = (url: string) => {
+    window.open(url, "_blank", "noopener,noreferrer")
+  }
+
+  return (
+    <div className="min-h-screen bg-black text-white p-4 flex flex-col relative">
+      <div className="flex-grow flex items-center justify-center">
+        <div className="w-full max-w-md">
+          <h1 className="text-2xl font-bold mb-6 text-center">Due Today</h1>
+          {isLoading ? (
+            <SkeletonLoader />
+          ) : (
+            <motion.ul layout className="space-y-4 mb-8 w-full">
+              <AnimatePresence initial={false}>
+                {tasks.map((task) => (
+                  <motion.li
+                    key={task.id}
+                    layout
+                    initial={{ opacity: 0, y: 50 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 50 }}
+                    transition={{ type: "spring", stiffness: 500, damping: 30, duration: 0.3 }}
+                    className={`py-3 cursor-pointer group ${task.completed ? "opacity-60" : ""}`}
+                    onClick={() => toggleTaskCompletion(task.id)}
+                  >
+                    <div className="flex items-center space-x-3">
+                      <motion.div
+                        className="w-5 h-5 flex-shrink-0 relative"
+                        animate={updatingTaskId === task.id ? { rotate: 360 } : { rotate: 0 }}
+                        transition={
+                          updatingTaskId === task.id
+                            ? { duration: 1, repeat: Number.POSITIVE_INFINITY, ease: "linear" }
+                            : { duration: 0 }
+                        }
+                      >
+                        <div className="w-full h-full bg-gray-600 rounded-full"></div>
+                      </motion.div>
+                      <div className="flex-grow flex items-center justify-between overflow-hidden">
+                        <span className="text-sm truncate text-gray-400 group-hover:text-white transition-colors duration-300 ease-in-out">
+                          {task.title}
+                        </span>
+                      </div>
+                      {task.url && (
+                        <div
+                          className="hidden group-hover:block transition-opacity duration-200 ml-2"
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            openTaskInNewWindow(task.url!)
+                          }}
+                        >
+                          <ExternalLink className="w-4 h-4 text-gray-400 hover:text-white transition-colors duration-300 ease-in-out" />
+                        </div>
+                      )}
+                    </div>
+                  </motion.li>
+                ))}
+              </AnimatePresence>
+            </motion.ul>
+          )}
+        </div>
+      </div>
+      <DemoModeToggle isDemoMode={isDemoMode} toggleDemoMode={toggleDemoMode} />
+    </div>
+  )
+}
