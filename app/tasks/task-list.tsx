@@ -38,7 +38,13 @@ export function TaskList() {
   const fetchTasks = async () => {
     setIsLoading(true)
     await new Promise((resolve) => setTimeout(resolve, 1000))
-    setTasks(demoTasks)
+
+    // Sort the demo tasks by sorted_index when fetching
+    const sortedTasks = [...demoTasks].sort((a, b) =>
+      (a.sorted_index || 0) - (b.sorted_index || 0)
+    )
+
+    setTasks(sortedTasks)
     setIsLoading(false)
   }
 
@@ -51,7 +57,12 @@ export function TaskList() {
     setTasks((prevTasks) =>
       prevTasks
         .map((task) => (task.id === taskId ? { ...task, completed: !task.completed } : task))
-        .sort((a, b) => (a.completed === b.completed ? 0 : a.completed ? 1 : -1)),
+        .sort((a, b) => {
+          if (a.completed !== b.completed) {
+            return a.completed ? 1 : -1
+          }
+          return (a.sorted_index || 0) - (b.sorted_index || 0)
+        }),
     )
     setTimeout(() => setUpdatingTaskId(null), 500)
   }
