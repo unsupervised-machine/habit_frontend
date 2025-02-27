@@ -42,9 +42,9 @@ export function TaskList() {
     fetchTasks()
   }, [])
 
-  useEffect(() => {
-    console.log("tasks: ", tasks);
-  }, [tasks])
+  // useEffect(() => {
+  //   console.log("tasks: ", tasks);
+  // }, [tasks])
 
   const fetchTasks = async () => {
     setIsLoading(true)
@@ -86,7 +86,6 @@ export function TaskList() {
       .sort((a, b) => a.sort_index - b.sort_index)
     )
 
-    // console.log(tasks)
     setIsDemoMode(isUsingDemoData)
 
     setIsLoading(false)
@@ -94,16 +93,27 @@ export function TaskList() {
 
   const addTask = async (newTask: Task) => {
     try {
-      const response = await fetch("/api/tasks", {
+      const url = `http://127.0.0.1:8000/habits`
+      const body = JSON.stringify({
+        id: newTask.id,
+        user_id: user_id,
+        name: newTask.title,
+        description: newTask.description,
+        url: newTask.url,
+        sort_index: newTask.sort_index,
+      })
+      // console.log(body)
+
+      const response = await fetch(url, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newTask),
+        body: body,
       });
 
       if (response.ok) {
-        const savedTask = await response.json();
+        // add the new task to list
         setTasks((prevTasks) =>
-          [...prevTasks, savedTask].sort((a, b) => (a.sort_index || 0) - (b.sort_index || 0))
+          [...prevTasks, newTask].sort((a, b) => (a.sort_index || 0) - (b.sort_index || 0))
         );
       }
     } catch (error) {
