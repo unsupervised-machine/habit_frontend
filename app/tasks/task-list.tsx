@@ -60,7 +60,8 @@ export function TaskList() {
     let isUsingDemoData = true
 
     try {
-      const url = `http://127.0.0.1:8000/users/${user_id}/habits`;
+      // const url = `http://127.0.0.1:8000/users/${user_id}/habits`;
+      const url = `http://127.0.0.1:8000/users/${user_id}/dashboard`;
 
       const response = await fetch(url, {
         method: "GET",
