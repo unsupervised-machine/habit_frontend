@@ -26,8 +26,8 @@ export function AddTask({ addTask }: { addTask: (task: Task) => void }) {
       id: crypto.randomUUID(),
       title: name,
       description: description,
-      completed: false,
-      sorted_index: Date.now(),
+      url: "fake url",
+      sort_index: 1,
     };
 
     addTask(newTask);
