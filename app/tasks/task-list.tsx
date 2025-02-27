@@ -5,6 +5,7 @@ import { ExternalLink } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { DemoModeToggle } from "@/components/demo-mode-toggle"
 import { type Task, demoTasks } from "@/constants/demoTasks"
+import { demoDBIDs } from "@/constants/demo-db-ids"
 import { AddTask } from "./add-task" // Import the AddTask component
 
 
@@ -33,9 +34,15 @@ export function TaskList() {
   const [isLoading, setIsLoading] = useState(true)
   const [updatingTaskId, setUpdatingTaskId] = useState<string | null>(null)
 
+  const { user_id, habit_id, completion_id } = demoDBIDs[0];
+
   useEffect(() => {
     fetchTasks()
   }, [])
+
+  useEffect(() => {
+    console.log("tasks: ", tasks);
+  }, [tasks])
 
   const fetchTasks = async () => {
     setIsLoading(true)
@@ -44,7 +51,15 @@ export function TaskList() {
     let isUsingDemoData = true
 
     try {
-      const response = await fetch("/api/tasks") // Replace with your actual API endpoint
+      const url = `http://127.0.0.1:8000/users/${user_id}/habits`;
+
+      const response = await fetch(url, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
       if (response.ok) {
         const fetchedData: Task[] = await response.json()
         if (fetchedData.length) {
@@ -56,8 +71,19 @@ export function TaskList() {
       console.error("Error fetching tasks:", error)
     }
 
+    // console.log(data)
     // Sort the data before updating state
-    setTasks(data.sort((a, b) => (a.sorted_index || 0) - (b.sorted_index || 0)))
+    setTasks(data
+      .map(item => ({
+        id: item._id,
+        title: item.name,
+        description: item.description,
+        sort_index: item.sort_index || 0, // Default to 0 if missing
+      }))
+      .sort((a, b) => a.sort_index - b.sort_index)
+    )
+
+    // console.log(tasks)
     setIsDemoMode(isUsingDemoData)
 
     setIsLoading(false)
@@ -74,7 +100,7 @@ export function TaskList() {
       if (response.ok) {
         const savedTask = await response.json();
         setTasks((prevTasks) =>
-          [...prevTasks, savedTask].sort((a, b) => (a.sorted_index || 0) - (b.sorted_index || 0))
+          [...prevTasks, savedTask].sort((a, b) => (a.sort_index || 0) - (b.sort_index || 0))
         );
       }
     } catch (error) {
@@ -95,7 +121,7 @@ export function TaskList() {
           if (a.completed !== b.completed) {
             return a.completed ? 1 : -1
           }
-          return (a.sorted_index || 0) - (b.sorted_index || 0)
+          return (a.sort_index || 0) - (b.sort_index || 0)
         }),
     )
     setTimeout(() => setUpdatingTaskId(null), 500)
