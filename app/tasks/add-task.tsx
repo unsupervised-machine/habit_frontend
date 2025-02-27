@@ -11,8 +11,30 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
+import { useState } from "react"
+import {Task} from "@/constants/demoTasks";
 
-export function AddTask() {
+
+export function AddTask({ addTask }: { addTask: (task: Task) => void }) {
+  const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
+
+  const handleSubmit = () => {
+    if (!name.trim()) return;
+
+    const newTask: Task = {
+      id: crypto.randomUUID(),
+      title: name,
+      description: description,
+      completed: false,
+      sorted_index: Date.now(),
+    };
+
+    addTask(newTask);
+    setName("");
+    setDescription("");
+  };
+
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -25,23 +47,18 @@ export function AddTask() {
         </DialogHeader>
         <div className="grid gap-4 py-4">
           <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="name" className="text-right">
-              Name
-            </Label>
-            <Input id="name" placeholder="Task name" className="col-span-3" />
+            <Label htmlFor="name" className="text-right">Name</Label>
+            <Input id="name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Task name" className="col-span-3" />
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="description" className="text-right">
-              Description
-            </Label>
-            <Textarea id="description" placeholder="Task description" className="col-span-3 min-h-[100px]" />
+            <Label htmlFor="description" className="text-right">Description</Label>
+            <Textarea id="description" value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Task description" className="col-span-3 min-h-[100px]" />
           </div>
         </div>
         <DialogFooter>
-          <Button type="submit">Save task</Button>
+          <Button onClick={handleSubmit}>Save task</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
-  )
+  );
 }
-

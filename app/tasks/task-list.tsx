@@ -29,7 +29,7 @@ function SkeletonLoader() {
 
 export function TaskList() {
   const [tasks, setTasks] = useState<Task[]>([])
-  const [isDemoMode, setIsDemoMode] = useState(true)
+  const [isDemoMode, setIsDemoMode] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const [updatingTaskId, setUpdatingTaskId] = useState<string | null>(null)
 
@@ -39,22 +39,48 @@ export function TaskList() {
 
   const fetchTasks = async () => {
     setIsLoading(true)
-    await new Promise((resolve) => setTimeout(resolve, 1000))
 
-    // Sort the demo tasks by sorted_index when fetching
-    const sortedTasks = [...demoTasks].sort((a, b) =>
-      (a.sorted_index || 0) - (b.sorted_index || 0)
-    )
+    let data: Task[] = demoTasks // Default to demo data
+    let isUsingDemoData = true
 
-    setTasks(sortedTasks)
+    try {
+      const response = await fetch("/api/tasks") // Replace with your actual API endpoint
+      if (response.ok) {
+        const fetchedData: Task[] = await response.json()
+        if (fetchedData.length) {
+          data = fetchedData
+          isUsingDemoData = false
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching tasks:", error)
+    }
+
+    // Sort the data before updating state
+    setTasks(data.sort((a, b) => (a.sorted_index || 0) - (b.sorted_index || 0)))
+    setIsDemoMode(isUsingDemoData)
+
     setIsLoading(false)
   }
 
-  const addTask = (newTask: Task) => {
-    setTasks((prevTasks) =>
-      [...prevTasks, newTask].sort((a, b) => (a.sorted_index || 0) - (b.sorted_index || 0))
-    )
-  }
+  const addTask = async (newTask: Task) => {
+    try {
+      const response = await fetch("/api/tasks", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newTask),
+      });
+
+      if (response.ok) {
+        const savedTask = await response.json();
+        setTasks((prevTasks) =>
+          [...prevTasks, savedTask].sort((a, b) => (a.sorted_index || 0) - (b.sorted_index || 0))
+        );
+      }
+    } catch (error) {
+      console.error("Error adding task:", error);
+    }
+  };
 
   const toggleDemoMode = () => {
     setIsDemoMode(!isDemoMode)
