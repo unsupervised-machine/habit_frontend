@@ -5,6 +5,8 @@ import { ExternalLink } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { DemoModeToggle } from "@/components/demo-mode-toggle"
 import { type Task, demoTasks } from "@/constants/demoTasks"
+import { AddTask } from "./add-task" // Import the AddTask component
+
 
 function SkeletonLoader() {
   return (
@@ -48,6 +50,12 @@ export function TaskList() {
     setIsLoading(false)
   }
 
+  const addTask = (newTask: Task) => {
+    setTasks((prevTasks) =>
+      [...prevTasks, newTask].sort((a, b) => (a.sorted_index || 0) - (b.sorted_index || 0))
+    )
+  }
+
   const toggleDemoMode = () => {
     setIsDemoMode(!isDemoMode)
   }
@@ -75,7 +83,12 @@ export function TaskList() {
     <div className="min-h-screen bg-black text-white p-4 flex flex-col relative">
       <div className="flex-grow flex items-center justify-center">
         <div className="w-full max-w-md">
-          <h1 className="text-2xl font-bold mb-6 text-center">Due Today</h1>
+          {/* Modified header section to place AddTask to the right of the heading */}
+          <div className="flex items-center justify-between mb-6">
+            <h1 className="text-2xl font-bold text-center">Due Today</h1>
+            <AddTask addTask={addTask} />
+          </div>
+
           {isLoading ? (
             <SkeletonLoader />
           ) : (
