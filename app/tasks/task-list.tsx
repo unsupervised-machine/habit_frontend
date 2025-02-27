@@ -34,6 +34,8 @@ export function TaskList() {
   const [isLoading, setIsLoading] = useState(true)
   const [updatingTaskId, setUpdatingTaskId] = useState<string | null>(null)
 
+  // Demo ids for querying database
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { user_id, habit_id, completion_id } = demoDBIDs[0];
 
   useEffect(() => {
@@ -71,11 +73,12 @@ export function TaskList() {
       console.error("Error fetching tasks:", error)
     }
 
-    // console.log(data)
     // Sort the data before updating state
     setTasks(data
       .map(item => ({
+        // @ts-expect-error '_id' does not exist on type 'Task'
         id: item._id,
+        // @ts-expect-error expected 'name' does not exist on type 'Task'
         title: item.name,
         description: item.description,
         sort_index: item.sort_index || 0, // Default to 0 if missing
