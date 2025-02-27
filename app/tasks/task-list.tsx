@@ -8,6 +8,12 @@ import { type Task, demoTasks } from "@/constants/demoTasks"
 import { demoDBIDs } from "@/constants/demo-db-ids"
 import { AddTask } from "./add-task" // Import the AddTask component
 
+// TODO
+// fetch completions for today
+// on initial open, auto check habits that are completed for today
+// make sure sorting works when uncheck a task
+
+
 
 function SkeletonLoader() {
   return (
