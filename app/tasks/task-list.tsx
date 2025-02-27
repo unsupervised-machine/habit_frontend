@@ -8,10 +8,6 @@ import { type Task, demoTasks } from "@/constants/demoTasks"
 import { demoDBIDs } from "@/constants/demo-db-ids"
 import { AddTask } from "./add-task" // Import the AddTask component
 
-// TODO
-// send check changes to update database completions table
-
-
 
 function SkeletonLoader() {
   return (
