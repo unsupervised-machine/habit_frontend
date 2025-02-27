@@ -9,9 +9,7 @@ import { demoDBIDs } from "@/constants/demo-db-ids"
 import { AddTask } from "./add-task" // Import the AddTask component
 
 // TODO
-// fetch completions for today
-// on initial open, auto check habits that are completed for today
-// make sure sorting works when uncheck a task
+// send check changes to update database completions table
 
 
 
@@ -138,20 +136,53 @@ export function TaskList() {
     setIsDemoMode(!isDemoMode)
   }
 
-  const toggleTaskCompletion = (taskId: string) => {
-    setUpdatingTaskId(taskId)
-    setTasks((prevTasks) =>
-      prevTasks
-        .map((task) => (task.id === taskId ? { ...task, completed: !task.completed } : task))
-        .sort((a, b) => {
-          if (a.completed !== b.completed) {
-            return a.completed ? 1 : -1
-          }
-          return (a.sort_index || 0) - (b.sort_index || 0)
-        }),
-    )
-    setTimeout(() => setUpdatingTaskId(null), 500)
-  }
+const toggleTaskCompletion = async (taskId: string) => {
+  setUpdatingTaskId(taskId);
+
+  // Find the task
+  const task = tasks.find((t) => t.id === taskId);
+  if (!task) return;
+
+  // Toggle the completion status
+  const updatedCompleted = !task.completed;
+
+  // Optimistically update UI
+  setTasks((prevTasks) =>
+    prevTasks
+      .map((t) => (t.id === taskId ? { ...t, completed: updatedCompleted } : t))
+      .sort((a, b) => {
+        if (a.completed !== b.completed) {
+          return a.completed ? 1 : -1;
+        }
+        return (a.sort_index || 0) - (b.sort_index || 0);
+      }),
+  );
+
+    try {
+      const url = `http://127.0.0.1:8000/completions/upsert`
+      const response = await fetch(url, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({user_id: user_id, habit_id: task.id, date: task.date, completed: updatedCompleted})
+        // body: JSON.stringify({ completed: !tasks.find((task) => task.id === taskId)?.completed }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to update task status");
+      }
+    } catch (error) {
+      console.error("Error updating task completion:", error);
+
+      // Revert UI update on failure
+      setTasks((prevTasks) =>
+        prevTasks.map((t) =>
+          t.id === taskId ? { ...t, completed: !updatedCompleted } : t
+        )
+      );
+    }
+
+    setUpdatingTaskId(null);
+  };
 
   const openTaskInNewWindow = (url: string) => {
     window.open(url, "_blank", "noopener,noreferrer")

@@ -2,6 +2,7 @@ export interface Task {
   id: string
   title: string
   description: string
+  date: string
   sort_index?: number
   team?: { name: string }
   completed?: boolean
