@@ -65,7 +65,15 @@ export function TaskList() {
       if (response.ok) {
         const fetchedData: Task[] = await response.json()
         if (fetchedData.length) {
-          data = fetchedData
+          data = fetchedData.map(item => ({
+              // @ts-expect-error '_id' does not exist on type 'Task'
+              id: item._id,
+              // @ts-expect-error expected 'name' does not exist on type 'Task'
+              title: item.name,
+              description: item.description,
+              sort_index: item.sort_index || 0, // Default to 0 if missing
+            })).sort((a, b) => a.sort_index - b.sort_index)
+
           isUsingDemoData = false
         }
       }
@@ -74,17 +82,7 @@ export function TaskList() {
     }
 
     // Sort the data before updating state
-    setTasks(data
-      .map(item => ({
-        // @ts-expect-error '_id' does not exist on type 'Task'
-        id: item._id,
-        // @ts-expect-error expected 'name' does not exist on type 'Task'
-        title: item.name,
-        description: item.description,
-        sort_index: item.sort_index || 0, // Default to 0 if missing
-      }))
-      .sort((a, b) => a.sort_index - b.sort_index)
-    )
+    setTasks(data)
 
     setIsDemoMode(isUsingDemoData)
 
