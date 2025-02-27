@@ -48,6 +48,7 @@ export function TaskList() {
     fetchTasks()
   }, [])
 
+
   // useEffect(() => {
   //   console.log("tasks: ", tasks);
   // }, [tasks])
@@ -78,7 +79,9 @@ export function TaskList() {
               title: item.name,
               description: item.description,
               sort_index: item.sort_index || 0, // Default to 0 if missing
-            })).sort((a, b) => a.sort_index - b.sort_index)
+              completed: item.completed ?? false,
+            }))
+
 
           isUsingDemoData = false
         }
@@ -87,11 +90,15 @@ export function TaskList() {
       console.error("Error fetching tasks:", error)
     }
 
-    // Sort the data before updating state
-    setTasks(data)
+    const sorted_data = data.sort((a, b) => {
+            if (a.completed !== b.completed) {
+              return a.completed ? 1 : -1;
+            }
+            return (a.sort_index || 0) - (b.sort_index || 0);
+    });
 
+    setTasks(sorted_data)
     setIsDemoMode(isUsingDemoData)
-
     setIsLoading(false)
   }
 
@@ -105,6 +112,7 @@ export function TaskList() {
         description: newTask.description,
         url: newTask.url,
         sort_index: newTask.sort_index,
+        completed: newTask.completed || false
       })
       // console.log(body)
 
@@ -152,7 +160,6 @@ export function TaskList() {
     <div className="min-h-screen bg-black text-white p-4 flex flex-col relative">
       <div className="flex-grow flex items-center justify-center">
         <div className="w-full max-w-md">
-          {/* Modified header section to place AddTask to the right of the heading */}
           <div className="flex items-center justify-between mb-6">
             <h1 className="text-2xl font-bold text-center">Due Today</h1>
             <AddTask addTask={addTask} />
