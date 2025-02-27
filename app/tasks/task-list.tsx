@@ -74,6 +74,7 @@ export function TaskList() {
           data = fetchedData.map(item => ({
               // @ts-expect-error '_id' does not exist on type 'Task'
               id: item._id,
+              date: item.date,
               // @ts-expect-error expected 'name' does not exist on type 'Task'
               title: item.name,
               description: item.description,
