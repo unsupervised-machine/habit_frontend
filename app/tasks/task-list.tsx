@@ -1,12 +1,13 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { jwtDecode } from "jwt-decode";
 import { ExternalLink } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { DemoModeToggle } from "@/components/demo-mode-toggle"
 import { type Task, demoTasks } from "@/constants/demoTasks"
 import { demoDBIDs } from "@/constants/demo-db-ids"
-import { AddTask } from "./add-task" // Import the AddTask component
+import { AddTask } from "./add-task"
 
 
 function SkeletonLoader() {
@@ -33,19 +34,63 @@ export function TaskList() {
   const [isDemoMode, setIsDemoMode] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const [updatingTaskId, setUpdatingTaskId] = useState<string | null>(null)
+  const [userEmail, setUserEmail] = useState<string | null>(null);
+  const [authToken, setAuthToken] = useState<string | null>(null);
+  const [user_id, set_user_id] = useState<string | null>(null);
 
   // Demo ids for querying database
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { user_id, habit_id, completion_id } = demoDBIDs[0];
+  const { demo_user_id } = demoDBIDs[0];
+
 
   useEffect(() => {
-    fetchTasks()
-  }, [])
+    // Load the token from localStorage on page load
+    const token = localStorage.getItem("authToken");
+
+    if (token) {
+      setAuthToken(token);
+      try {
+        const decoded: { sub?: string } = jwtDecode(token); // Decode JWT
+        if (decoded.sub) {
+          setUserEmail(decoded.sub); // Set user email
+        }
+      } catch (error) {
+        console.error("Invalid token:", error);
+      }
+    }
+  }, []);
+
+  // Fetch user ID after userEmail is set
+  useEffect(() => {
+    if (!userEmail || !authToken) return; // Wait for both values
+
+    const fetchUserId = async () => {
+      try {
+        const url = `http://127.0.0.1:8000/auth/email/${userEmail}`;
+        const response = await fetch(url, { method: "GET", headers: { "Content-Type": "application/json" } });
+
+        if (response.ok) {
+          const data = await response.json();
+          set_user_id(data._id); // Now user_id is set
+        } else {
+          console.error("Failed to fetch user ID");
+          set_user_id(demo_user_id); // Fallback to demo user_id
+        }
+      } catch (error) {
+        console.error("Error fetching user ID:", error);
+        set_user_id(demo_user_id);
+      }
+    };
+
+    fetchUserId();
+  }, [userEmail, authToken]); // Runs only when userEmail and authToken are set
 
 
-  // useEffect(() => {
-  //   console.log("tasks: ", tasks);
-  // }, [tasks])
+  useEffect(() => {
+    if (!user_id) return; // Wait for user_id to be set
+    fetchTasks();
+  }, [user_id]); // Runs only when user_id is set
+
+
 
   const fetchTasks = async () => {
     setIsLoading(true)
@@ -63,9 +108,9 @@ export function TaskList() {
           "Content-Type": "application/json",
         },
       });
-
       if (response.ok) {
         const fetchedData: Task[] = await response.json()
+        console.log(fetchedData)
         if (fetchedData.length) {
           data = fetchedData.map(item => ({
               // @ts-expect-error '_id' does not exist on type 'Task'
@@ -110,7 +155,6 @@ export function TaskList() {
         sort_index: newTask.sort_index,
         completed: newTask.completed || false
       })
-      // console.log(body)
 
       const response = await fetch(url, {
         method: "POST",
