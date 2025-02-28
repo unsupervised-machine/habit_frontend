@@ -176,14 +176,14 @@ export function SignUpForm({ className, ...props }: React.ComponentProps<"div">)
                     "Sign Up"
                   )}
                 </Button>
-                <Button variant="outline" className="w-full" disabled={isLoading}>
-                  Sign Up with Google
-                </Button>
+                {/*<Button variant="outline" className="w-full" disabled={isLoading}>*/}
+                {/*  Sign Up with Google*/}
+                {/*</Button>*/}
               </div>
             </div>
             <div className="mt-4 text-center text-sm">
               Already have an account?{" "}
-              <a href="#" className="underline underline-offset-4">
+              <a href="http://127.0.0.1:3000/auth/login" className="underline underline-offset-4">
                 Login
               </a>
             </div>
