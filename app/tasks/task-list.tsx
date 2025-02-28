@@ -164,9 +164,11 @@ export function TaskList() {
 
       if (response.ok) {
         // add the new task to list
-        setTasks((prevTasks) =>
-          [...prevTasks, newTask].sort((a, b) => (a.sort_index || 0) - (b.sort_index || 0))
-        );
+        // setTasks((prevTasks) =>
+        //   [...prevTasks, newTask].sort((a, b) => (a.sort_index || 0) - (b.sort_index || 0))
+        // );
+        await fetchTasks();
+
       }
     } catch (error) {
       console.error("Error adding task:", error);
