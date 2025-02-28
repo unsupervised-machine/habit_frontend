@@ -65,6 +65,7 @@ export function TaskList() {
 
     const fetchUserId = async () => {
       try {
+        // TODO replace this with /auth/users/me ???
         const url = `http://127.0.0.1:8000/auth/email/${userEmail}`;
         const response = await fetch(url, { method: "GET", headers: { "Content-Type": "application/json" } });
 
