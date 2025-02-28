@@ -2,12 +2,13 @@
 
 import { useState, useEffect } from "react"
 import { jwtDecode } from "jwt-decode";
-import { ExternalLink } from "lucide-react"
+import { Trash2 } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { DemoModeToggle } from "@/components/demo-mode-toggle"
 import { type Task, demoTasks } from "@/constants/demoTasks"
 import { demoDBIDs } from "@/constants/demo-db-ids"
 import { AddTask } from "./add-task"
+import { toast } from "sonner"
 
 
 function SkeletonLoader() {
@@ -234,8 +235,36 @@ const toggleTaskCompletion = async (taskId: string) => {
     setUpdatingTaskId(null);
   };
 
-  const openTaskInNewWindow = (url: string) => {
-    window.open(url, "_blank", "noopener,noreferrer")
+  const deleteTask = async (taskId: string, e: React.MouseEvent) => {
+    e.stopPropagation() // Prevent toggling completion when clicking delete
+
+    // Add confirmation dialog
+    const confirmed = window.confirm("Are you sure you want to delete this task?")
+    if (!confirmed) return
+
+    try {
+      const url = `http://127.0.0.1:8000/habits/${taskId}`
+      const response = await fetch(url, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          // Authorization: authToken ? `Bearer ${authToken}` : "",
+        },
+      })
+
+      if (response.ok) {
+        // Optimistically update UI by removing the task
+        setTasks((prevTasks) => prevTasks.filter((task) => task.id !== taskId))
+        toast.success("Task deleted successfully")
+        // Refresh the task list from the server
+        await fetchTasks()
+      } else {
+        throw new Error("Failed to delete task")
+        toast.error("Failed to delete task. Please try again.")
+      }
+    } catch (error) {
+      console.error("Error deleting task:", error)
+    }
   }
 
   return (
@@ -256,10 +285,10 @@ const toggleTaskCompletion = async (taskId: string) => {
                   <motion.li
                     key={task.id}
                     layout
-                    initial={{ opacity: 0, y: 50 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: 50 }}
-                    transition={{ type: "spring", stiffness: 500, damping: 30, duration: 0.3 }}
+                    initial={{opacity: 0, y: 50}}
+                    animate={{opacity: 1, y: 0}}
+                    exit={{opacity: 0, y: 50}}
+                    transition={{type: "spring", stiffness: 500, damping: 30, duration: 0.3}}
                     className={`py-3 cursor-pointer group ${task.completed ? "opacity-60" : ""}`}
                     onClick={() => toggleTaskCompletion(task.id)}
                   >
@@ -273,9 +302,7 @@ const toggleTaskCompletion = async (taskId: string) => {
                             : {duration: 0}
                         }
                       >
-                        {task.completed && (
-                          <div className="w-2.5 h-2.5 bg-gray-600 rounded-full"></div>
-                        )}
+                        {task.completed && <div className="w-2.5 h-2.5 bg-gray-600 rounded-full"></div>}
                       </motion.div>
                       <div className="flex-grow flex items-center justify-between overflow-hidden">
                         <span
@@ -283,17 +310,13 @@ const toggleTaskCompletion = async (taskId: string) => {
                           {task.title}
                         </span>
                       </div>
-                      {task.url && (
-                        <div
-                          className="hidden group-hover:block transition-opacity duration-200 ml-2"
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            openTaskInNewWindow(task.url!)
-                          }}
-                        >
-                          <ExternalLink className="w-4 h-4 text-gray-400 hover:text-white transition-colors duration-300 ease-in-out" />
-                        </div>
-                      )}
+                      <div
+                        className="hidden group-hover:block transition-opacity duration-200 ml-2"
+                        onClick={(e) => deleteTask(task.id, e)}
+                      >
+                        <Trash2
+                          className="w-4 h-4 text-gray-400 hover:text-white hover:text-red-400 transition-colors duration-300 ease-in-out"/>
+                      </div>
                     </div>
                   </motion.li>
                 ))}
@@ -302,7 +325,7 @@ const toggleTaskCompletion = async (taskId: string) => {
           )}
         </div>
       </div>
-      <DemoModeToggle isDemoMode={isDemoMode} toggleDemoMode={toggleDemoMode} />
+      <DemoModeToggle isDemoMode={isDemoMode} toggleDemoMode={toggleDemoMode}/>
     </div>
   )
 }
