@@ -75,6 +75,7 @@ export default function RootLayout({
                 ) : (
                   <>
                     <Link href="/dashboard">Dashboard</Link>
+                    <Link href="/support">Support Us</Link>
                     <button
                       onClick={handleLogout}
                       className="px-4 py-2 bg-red-500 text-white rounded"
