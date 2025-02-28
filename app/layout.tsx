@@ -1,11 +1,12 @@
-import type { Metadata } from "next";
+"use client";
+
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider"
 import {Toaster} from "sonner";
 import type React from "react";
 import Link from "next/link"
-
+import { useEffect, useState } from "react";
 
 
 
@@ -20,16 +21,37 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-export const metadata: Metadata = {
-  title: "Task Manager",
-  description: "Manage your tasks and subtasks",
-}
 
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    const checkAuth = () => {
+      setIsLoggedIn(!!localStorage.getItem("authToken"));
+    };
+
+    // Check authentication status on mount
+    checkAuth();
+
+    // Listen for login/logout events
+    window.addEventListener("authChange", checkAuth);
+
+    return () => {
+      window.removeEventListener("authChange", checkAuth);
+    };
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem("authToken");
+    setIsLoggedIn(false);
+    window.dispatchEvent(new Event("authChange")); // Dispatch event to update UI
+    window.location.href = "/";
+  };
+
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={geistSans.className}>
@@ -45,9 +67,22 @@ export default function RootLayout({
                 Simply Habits
               </Link>
               <div className="space-x-4">
-                <Link href="/auth/login">Login</Link>
-                <Link href="/support">Support Us</Link>
-                <Link href="/dashboard">Dashboard</Link>
+                {!isLoggedIn ? (
+                  <>
+                    <Link href="/auth/login">Login</Link>
+                    <Link href="/support">Support Us</Link>
+                  </>
+                ) : (
+                  <>
+                    <Link href="/dashboard">Dashboard</Link>
+                    <button
+                      onClick={handleLogout}
+                      className="px-4 py-2 bg-red-500 text-white rounded"
+                    >
+                      Logout
+                    </button>
+                  </>
+                )}
               </div>
             </div>
           </nav>

@@ -59,6 +59,7 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
       // Save the token to local storage
       if (data.access_token) {
         localStorage.setItem("authToken", data.access_token)
+        window.dispatchEvent(new Event("authChange"));
         toast.success("Login successful", {
           description: "Welcome back!",
         })
