@@ -42,6 +42,10 @@ export function TaskList() {
   // Demo ids for querying database
   const { demo_user_id } = demoDBIDs[0];
 
+  // Had to add this for fallback to demo data to work
+  useEffect(() => {
+    fetchTasks()
+  }, [])
 
   useEffect(() => {
     // Load the token from localStorage on page load
