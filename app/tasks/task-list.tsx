@@ -65,12 +65,20 @@ export function TaskList() {
 
     const fetchUserId = async () => {
       try {
-        // TODO replace this with /auth/users/me ???
-        const url = `http://127.0.0.1:8000/auth/email/${userEmail}`;
-        const response = await fetch(url, { method: "GET", headers: { "Content-Type": "application/json" } });
+        const url = `http://127.0.0.1:8000/auth/users/me`;
+        console.log(authToken)
+        const response = await fetch(url, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${authToken}`
+            }
+        });
 
         if (response.ok) {
           const data = await response.json();
+          console.log(data)
+
           set_user_id(data._id); // Now user_id is set
         } else {
           console.error("Failed to fetch user ID");
@@ -100,7 +108,6 @@ export function TaskList() {
     let isUsingDemoData = true
 
     try {
-      // const url = `http://127.0.0.1:8000/users/${user_id}/habits`;
       const url = `http://127.0.0.1:8000/users/${user_id}/dashboard`;
 
       const response = await fetch(url, {
@@ -111,7 +118,6 @@ export function TaskList() {
       });
       if (response.ok) {
         const fetchedData: Task[] = await response.json()
-        console.log(fetchedData)
         if (fetchedData.length) {
           data = fetchedData.map(item => ({
               // @ts-expect-error '_id' does not exist on type 'Task'
