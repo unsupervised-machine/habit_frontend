@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import React, { useState, useEffect } from "react"
 import { jwtDecode } from "jwt-decode";
 import { Trash2 } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
@@ -263,8 +263,8 @@ const toggleTaskCompletion = async (taskId: string) => {
         // Refresh the task list from the server
         await fetchTasks()
       } else {
-        throw new Error("Failed to delete task")
         toast.error("Failed to delete task. Please try again.")
+        throw new Error("Failed to delete task")
       }
     } catch (error) {
       console.error("Error deleting task:", error)
