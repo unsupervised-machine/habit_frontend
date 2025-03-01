@@ -3,6 +3,8 @@ interface DemoModeToggleProps {
   toggleDemoMode: () => void
 }
 
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export function DemoModeToggle({ isDemoMode, toggleDemoMode }: DemoModeToggleProps) {
   return (
     <div className="fixed bottom-4 right-4 flex items-center space-x-2">

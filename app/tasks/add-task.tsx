@@ -25,6 +25,7 @@ export function AddTask({ addTask }: { addTask: (task: Task) => void }) {
     const newTask: Task = {
       id: crypto.randomUUID(),
       title: name,
+      date: "",
       description: description,
       url: "fake url",
       sort_index: 1,
