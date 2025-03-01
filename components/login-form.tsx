@@ -42,7 +42,7 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
         formDataBody.append("username", formData.email);
         formDataBody.append("password", formData.password);
 
-        const response = await fetch(`http://127.0.0.1:8000/auth/token`, {
+        const response = await fetch(`https://n2j34wxg86.execute-api.us-east-1.amazonaws.com/auth/token`, {
           method: "POST",
           headers: {
             "Content-Type": "application/x-www-form-urlencoded",

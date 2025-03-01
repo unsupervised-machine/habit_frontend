@@ -54,7 +54,7 @@ export function SignUpForm({ className, ...props }: React.ComponentProps<"div">)
 
     try {
       // Make API request to your backend
-      const url = `http://127.0.0.1:8000/auth/register`;
+      const url = `https://n2j34wxg86.execute-api.us-east-1.amazonaws.com/auth/register`;
       const response = await fetch(url, {
         method: "POST",
         headers: {

@@ -70,7 +70,8 @@ export function TaskList() {
 
     const fetchUserId = async () => {
       try {
-        const url = `http://127.0.0.1:8000/auth/users/me`;
+        // const url = `http://127.0.0.1:8000/auth/users/me`;
+        const url = `https://n2j34wxg86.execute-api.us-east-1.amazonaws.com/auth/users/me`
         console.log(authToken)
         const response = await fetch(url, {
             method: "GET",
@@ -158,7 +159,8 @@ export function TaskList() {
 
   const addTask = async (newTask: Task) => {
     try {
-      const url = `http://127.0.0.1:8000/habits`
+      // const url = `http://127.0.0.1:8000/habits`
+      const url = `https://n2j34wxg86.execute-api.us-east-1.amazonaws.com/habits`
       const body = JSON.stringify({
         id: newTask.id,
         user_id: user_id,
@@ -215,7 +217,8 @@ const toggleTaskCompletion = async (taskId: string) => {
   );
 
     try {
-      const url = `http://127.0.0.1:8000/completions/upsert`
+      // const url = `http://127.0.0.1:8000/completions/upsert`
+      const url = `https://n2j34wxg86.execute-api.us-east-1.amazonaws.com/completions/upsert`
       const response = await fetch(url, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
@@ -248,7 +251,8 @@ const toggleTaskCompletion = async (taskId: string) => {
     if (!confirmed) return
 
     try {
-      const url = `http://127.0.0.1:8000/habits/${taskId}`
+      // const url = `http://127.0.0.1:8000/habits/${taskId}`
+      const url = `https://n2j34wxg86.execute-api.us-east-1.amazonaws.com/habits/${taskId}`
       const response = await fetch(url, {
         method: "DELETE",
         headers: {
