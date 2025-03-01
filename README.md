@@ -1,36 +1,97 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Frontend Habit Building App 
+## Table of Contents
+- [Overview](#overview)
+- [Tools Used](#tools-used)
+- [Requirements](#requirements)
+- [Setup](#setup)
+  - [Clone the Repository](#1-clone-the-repository)
+  - [Create a Virtual Environment & Install Dependencies](#2-create-a-virtual-environment--install-dependencies)
+  - [Run Locally](#4-run-locally)
+- [Backend API Endpoints](#Backend-API-Endpoints)
+- [Serverless Deployment](#serverless-deployment)
+- [Cloud Architecture](#Cloud-Architecture)
+- [Architecture Diagram](#architecture-diagram)
+- [Front End](#Front-End)
+- [Demo](#Demo)
+- [License](#license)
+- [Contact Me](#contact-me)
 
-## Getting Started
+## Overview
+This project is a backend application built using FastAPI, PyMongo, and Docker. It demonstrates building RESTful APIs that interact with a MongoDB database and includes a serverless deployment option using AWS Lambda and API Gateway.
 
-First, run the development server:
+## Tools Used
+### Backend
+- FastAPI for building RESTful APIs
+- PyMongo for interacting with MongoDB
+- Docker for containerized deployment 
+- JSON Web Tokens for User Authentication
+- Hosted on AWS 
+  - ECR to host containerized images
+  - Lambda Functions to respond to requests
+  - API Gateway to manage server-client communications
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+### Front End
+- React
+- Next.js
+- ShadCN (component library)
+  - Skeleton Loaders
+  - Motion Elements
+  - Fallback functionality
+
+## Requirements
+- Python 3.11
+
+## Setup
+### 1. Clone the repository
+```sh
+git clone https://github.com/unsupervised-machine/habit_frontend
+cd habit_frontend
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 2. Create a virtual environment & install dependencies
+```sh
+npm install
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 3. Run Locally
+```sh
+uvicorn main:app --reload --port 8000
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+You can also visit the live website here: https://habit-frontend-five.vercel.app
+```
+This will start both the FastAPI Uvicorn service running on http://127.0.0.1:8000 
 
-## Learn More
 
-To learn more about Next.js, take a look at the following resources:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Backend API Endpoints
+![FastAPI Docs](diagrams/FastAPI%20Endpoints.png)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
 
-## Deploy on Vercel
+## Serverless Deployment
+- This projects database is currently being hosted on MongoDB Atlas server, whether you hit the API from the API Gateway routes or from the locally hosted routes the database will reflect the changes.
+- The project was containerized using docker, the container image was stored in a ECR repo, a Lambda instance is spun up on calls from an API Gateway.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Cloud Architecture
+- A diagram describing my API architecture can be found here: `diagrams/Cloud Diagram.drawio.svg`
+![Cloud Architecture](diagrams/Cloud%20Diagram.drawio.svg)
+  
+### MongoDB
+- The database is hosted on the cloud using MongoDB Atlas.
+- All CRUD operations with the database are done through the official MongoDB driver pymongo.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Front End
+- The Front end was built using Next.js, React, 
+
+## Demo
+![Demo Video](diagrams/Screen%20Recording%20Demo.mov)
+
+
+## License
+None
+
+## Contact Me
+If you have any questions, suggestions, or issues, feel free to reach out!
+- Email: taran.s.lau@gmail.com
+- GitHub: https://github.com/unsupervised-machine
+
+---
