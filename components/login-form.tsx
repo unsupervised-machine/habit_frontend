@@ -102,7 +102,7 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
               <div className="grid gap-3">
                 <div className="flex items-center">
                   <Label htmlFor="password">Password</Label>
-                  <a href="http://127.0.0.1:3000/auth/reset-password" className="ml-auto inline-block text-sm underline-offset-4 hover:underline">
+                  <a href="https://habit-frontend-five.vercel.app/auth/reset-password" className="ml-auto inline-block text-sm underline-offset-4 hover:underline">
                     Forgot your password?
                   </a>
                 </div>
@@ -133,7 +133,7 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
             </div>
             <div className="mt-4 text-center text-sm">
               Don&apos;t have an account?{" "}
-              <a href="http://127.0.0.1:3000/auth/signup" className="underline underline-offset-4">
+              <a href="https://habit-frontend-five.vercel.app/auth/signup" className="underline underline-offset-4">
                 Sign Up
               </a>
             </div>

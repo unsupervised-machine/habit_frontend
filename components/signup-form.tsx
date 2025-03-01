@@ -183,7 +183,7 @@ export function SignUpForm({ className, ...props }: React.ComponentProps<"div">)
             </div>
             <div className="mt-4 text-center text-sm">
               Already have an account?{" "}
-              <a href="http://127.0.0.1:3000/auth/login" className="underline underline-offset-4">
+              <a href="https://habit-frontend-five.vercel.app/auth/login" className="underline underline-offset-4">
                 Login
               </a>
             </div>
